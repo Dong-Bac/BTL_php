@@ -1,0 +1,269 @@
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Thiết lập font và màu nền cho trang */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Đảm bảo chiều cao tối thiểu của body là chiều cao của cửa sổ */
+}
+
+.wrapper {
+    flex: 1; /* Cho phép .wrapper chiếm không gian còn lại giữa header và footer */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Phần menu */
+nav {
+    background-color: #333;
+    color: #fff;
+    padding: 20px 40px;
+}
+
+.nav-links {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.nav-links li {
+    position: relative;
+}
+
+.nav-links li a {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+}
+
+.nav-links .dropdown {
+    display: none;
+    position: absolute;
+    background-color: #333;
+    top: 100%;
+    left: 0;
+    min-width: 150px;
+    list-style-type: none;
+    padding: 10px 0;
+}
+
+.nav-links li:hover .dropdown {
+    display: block;
+}
+
+.nav-links .dropdown li {
+    margin: 0;
+}
+
+.nav-links .dropdown li a {
+    color: #fff;
+    padding: 10px 20px;
+    display: block;
+}
+
+.nav-links .dropdown li a:hover {
+    background-color: #444;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    margin-left: 20%;
+    margin-right: 5%;
+}
+
+.search-bar input[type="text"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 5px;
+}
+
+.search-bar button {
+    padding: 5px 10px;
+    background-color: #444;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.search-bar button:hover {
+    background-color: #555;
+}
+
+/* Phần nội dung chính */
+main {
+    padding: 20px;
+    flex: 1; /* Đảm bảo main chiếm không gian còn lại trong wrapper */
+}
+
+/* Định dạng cho bảng */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+table thead {
+    background-color: #333;
+    color: #fff;
+}
+
+table th, table td {
+    padding: 15px;
+    text-align: left;
+}
+h1{
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.add-film {
+    width: auto;
+    display: flex;
+    align-items: center; 
+    justify-content:end; 
+    margin-bottom: 20px;
+    padding: 5px;
+    background-color: rgb(27, 240, 27);
+    color: #fff;
+    border: none; 
+    cursor: pointer; 
+    border-radius: 10px;
+}
+table th {
+    background-color: #444;
+}
+
+table tbody tr:nth-child(odd) {
+    background-color: #f4f4f4;
+}
+
+table tbody tr:hover {
+    background-color: #e0e0e0;
+}
+
+table tbody tr td button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+table tbody tr td button:hover {
+    opacity: 0.8;
+}
+
+table tbody tr td button:first-child {
+    background-color: #2cd1e3; /* Sửa */
+    color: white;
+}
+
+table tbody tr td button:last-child {
+    background-color: #f44336; /* Xóa */
+    color: white;
+}
+
+table .flex{
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap:5px;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 5px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover, .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.modal-content input, .modal-content textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.modal-content button {
+    background-color: #0066ff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.modal-content button:hover {
+    background-color: #1e7ac1;
+}
+
+/* Phần footer */
+footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    position: sticky;
+    top: 100%;
+}

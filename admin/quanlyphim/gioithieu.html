@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="wrapper">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#">Trang chủ</a></li>
+                <li><a href="#">Giới thiệu film</a></li>
+                <li><a href="#">Thể loại</a>
+                    <ul class="dropdown">
+                        <li><a href="#">Tình cảm</a></li>
+                        <li><a href="#">Hài hước</a></li>
+                        <li><a href="#">Trinh thám</a></li>
+                    </ul>
+                </li>
+                <li class="search-bar">
+                    <input type="text" placeholder="Tìm kiếm..."/>
+                    <button>Tìm Kiếm</button>
+                </li>
+                <li><a href="#">Đăng nhập</a></li>
+                <li><a href="#">Đăng ký</a></li>
+            </ul>
+        </nav>
+        <main>
+            <h1>Quản lý phim</h1>
+            <button class="add-film">Thêm</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Tên phim</th>
+                        <th>Hình ảnh</th>
+                        <th>Năm phát hành</th>
+                        <th>Mô tả</th>
+                        <th>Link</th>
+                        <th>Thời lượng</th>
+                        <th>Đánh giá</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Shawshank Redemption</td>
+                        <td><img src="https://fr.web.img6.acsta.net/pictures/17/09/26/14/20/0755233.jpg" width="100px" height="100px"/></td>
+                        <td>1994</td>
+                        <td>A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO.</td>
+                        <td>https://www.netflix.com/title/70131314</td>
+                        <td>148</td>
+                        <td>8.80</td>
+                        <td class="flex"><button>Sửa</button> <button class="del-film">Xóa</button></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Inception</td>
+                        <td>Khoa học viễn tưởng</td>
+                        <td>2010</td>
+                        <td><button>Sửa</button> <button class="del-film">Xóa</button></td>
+                    </tr>
+                    <!-- Thêm các dòng phim khác tại đây -->
+                </tbody>
+            </table>
+        </main>
+    </div>
+    
+    <!-- Modal Form Thêm -->
+    <div id="addFilmModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Thêm phim mới</h2>
+            <form id="addFilmForm">
+                <label for="title">Tên phim:</label>
+                <input type="text" id="title" name="title" required>
+
+                <label for="image">Link hình ảnh:</label>
+                <input type="text" id="image" name="image" required>
+
+                <label for="year">Năm phát hành:</label>
+                <input type="number" id="year" name="year" required>
+
+                <label for="description">Mô tả:</label>
+                <textarea id="description" name="description" required></textarea>
+
+                <label for="link">Link:</label>
+                <input type="text" id="link" name="link" required>
+
+                <label for="duration">Thời lượng:</label>
+                <input type="number" id="duration" name="duration" required>
+
+                <label for="rating">Đánh giá:</label>
+                <input type="number" step="0.1" id="rating" name="rating" required>
+
+                <button type="submit">Thêm phim</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Form Xóa -->
+    <div id="delFilmModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Bạn có chắc chắn muốn xóa</h2>
+            <button class="cancel-delete">Hủy</button>
+            <button class="confirm-delete">Xác nhận</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Netflix. All rights reserved.</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
