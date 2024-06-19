@@ -29,6 +29,50 @@ function getUserInfo($userId) {
 }
 
 $userInfo = getUserInfo($_SESSION['user_id']);
+
+$movies = [];
+if (isset($_GET['query']) && !empty($_GET['query'])) {
+    $searchQuery = $_GET['query'];
+    $host = 'localhost';
+    $dbname = 'netflix_db';
+    $username_db = 'root';
+    $password_db = '';
+    $port = 3366;
+
+    try {
+        $pdo = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username_db, $password_db);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $sql = "SELECT * FROM movies WHERE title LIKE :searchQuery";
+        $stmt = $pdo->prepare($sql);
+        $searchTerm = "%" . $searchQuery . "%";
+        $stmt->bindParam(':searchQuery', $searchTerm);
+        $stmt->execute();
+        $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch(PDOException $e) {
+        echo "Lỗi khi kết nối đến cơ sở dữ liệu: " . $e->getMessage();
+    }
+
+    $pdo = null;
+} else {
+    $host = 'localhost';
+    $dbname = 'netflix_db';
+    $username_db = 'root';
+    $password_db = '';
+    $port = 3366;
+
+    try {
+        $pdo = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username_db, $password_db);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $sql = "SELECT * FROM movies ORDER BY visited DESC LIMIT 12";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch(PDOException $e) {
+        echo "Lỗi khi kết nối đến cơ sở dữ liệu: " . $e->getMessage();
+    }
+
+    $pdo = null;
+}
 ?>
 
 <!DOCTYPE html>
@@ -78,8 +122,10 @@ $userInfo = getUserInfo($_SESSION['user_id']);
                     </ul>
                 </li>
                 <li class="search-bar">
-                    <input type="text" placeholder="Tìm kiếm..."/>
-                    <button>Tìm Kiếm</button>
+                    <form method="GET" action="">
+                        <input type="text" name="query" placeholder="Tìm kiếm..." value="<?php echo isset($_GET['query']) ? htmlspecialchars($_GET['query']) : ''; ?>"/>
+                        <button type="submit">Tìm Kiếm</button>
+                    </form>
                 </li>
                 <?php if ($userInfo): ?>
                     <li><a href="#">Xin chào, <?php echo htmlspecialchars($userInfo['username']); ?></a></li>
@@ -102,38 +148,19 @@ $userInfo = getUserInfo($_SESSION['user_id']);
                 <h2>Phim nổi bật</h2>
                 <div class="movies-grid">
                     <?php
-                        $host = 'localhost';
-                        $dbname = 'netflix_db';
-                        $username_db = 'root';
-                        $password_db = '';
-                        $port = 3366;
-
-                        try {
-                            $pdo = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username_db, $password_db);
-                            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                            $sql = "SELECT * FROM movies ORDER BY visited DESC LIMIT 12";
-                            $stmtCheckEmail = $pdo->prepare($sql);
-                            $stmtCheckEmail->execute();
-                            $movies = $stmtCheckEmail->fetchAll(PDO::FETCH_ASSOC);
-
-                            if ($movies) {
-                                foreach ($movies as $movie) {
-                                    echo "
-                                    <div class=\"movie\">
-                                        <img src=\"{$movie['image']}\" alt=\"{$movie['title']}\" width=\"200px\" height=\"300px\">
-                                        <h3>{$movie['title']}</h3>
-                                        <p>{$movie['description']}</p>
-                                    </div>
-                                    ";
-                                }
-                            } else {
-                                echo "<p>Không có phim nào được tìm thấy.</p>";
+                        if ($movies) {
+                            foreach ($movies as $movie) {
+                                echo "
+                                <div class=\"movie\">
+                                    <img src=\"{$movie['image']}\" alt=\"{$movie['title']}\" width=\"200px\" height=\"300px\">
+                                    <h3>{$movie['title']}</h3>
+                                    <p>{$movie['description']}</p>
+                                </div>
+                                ";
                             }
-                        } catch(PDOException $e) {
-                            echo "Lỗi khi kết nối đến cơ sở dữ liệu: " . $e->getMessage();
+                        } else {
+                            echo "<p>Không có phim nào được tìm thấy.</p>";
                         }
-
-                        $pdo = null;
                     ?>
                 </div>
             </section>
@@ -142,46 +169,45 @@ $userInfo = getUserInfo($_SESSION['user_id']);
                 <h2>Thể loại phim</h2>
                 <div class="genre-grid">
                 <?php
-                            $host = 'localhost';
-                            $dbname = 'netflix_db';
-                            $username_db = 'root';
-                            $password_db = '';
-                            $port = 3366;
+                    $host = 'localhost';
+                    $dbname = 'netflix_db';
+                    $username_db = 'root';
+                    $password_db = '';
+                    $port = 3366;
 
-                            try {
-                                $pdo = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username_db, $password_db);
-                                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                                $sql = "SELECT * FROM genres";
-                                $stmt = $pdo->prepare($sql);
-                                $stmt->execute();
-                                $genres = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                            
-                                if ($genres) {
-                                    foreach ($genres as $genre) {
-                                        echo "
-                                        <div class=\"genre\">
-                                            <h3>{$genre['name']}</h3>
-                                            <img src=\"{$genre['image_genre']}\" alt=\"{$genre['name']}\">
-                                        </div>
-                                        ";
-                                    }
-                                } else {
-                                    echo "<p>Không có thể loại nào được tìm thấy.</p>";
-                                }
-                            } catch(PDOException $e) {
-                                echo "Lỗi khi kết nối đến cơ sở dữ liệu: " . $e->getMessage();
+                    try {
+                        $pdo = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username_db, $password_db);
+                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                        $sql = "SELECT * FROM genres";
+                        $stmt = $pdo->prepare($sql);
+                        $stmt->execute();
+                        $genres = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        if ($genres) {
+                            foreach ($genres as $genre) {
+                                echo "
+                                <div class=\"genre\">
+                                    <h3>{$genre['name']}</h3>
+                                    <img src=\"{$genre['image_genre']}\" alt=\"{$genre['name']}\">
+                                </div>
+                                ";
                             }
+                        } else {
+                            echo "<p>Không có thể loại nào được tìm thấy.</p>";
+                        }
+                    } catch(PDOException $e) {
+                        echo "Lỗi khi kết nối đến cơ sở dữ liệu: " . $e->getMessage();
+                    }
 
-                            $pdo = null;
-                        ?>
-                    
+                    $pdo = null;
+                ?>
                 </div>
             </section>
         </main>
-        
     </div>
     <footer>
         <p>&copy; 2024 Netflix. All rights reserved.</p>
     </footer>
 </body>
 </html>
+

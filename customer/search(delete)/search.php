@@ -29,6 +29,31 @@ function getUserInfo($userId) {
 }
 
 $userInfo = getUserInfo($_SESSION['user_id']);
+
+$searchResults = [];
+if (isset($_GET['query'])) {
+    $searchQuery = $_GET['query'];
+    $host = 'localhost';
+    $dbname = 'netflix_db';
+    $username_db = 'root';
+    $password_db = '';
+    $port = 3366;
+
+    try {
+        $pdo = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username_db, $password_db);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $sql = "SELECT * FROM movies WHERE title LIKE :searchQuery";
+        $stmt = $pdo->prepare($sql);
+        $searchTerm = "%" . $searchQuery . "%";
+        $stmt->bindParam(':searchQuery', $searchTerm);
+        $stmt->execute();
+        $searchResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch(PDOException $e) {
+        echo "Lỗi khi kết nối đến cơ sở dữ liệu: " . $e->getMessage();
+    }
+
+    $pdo = null;
+}
 ?>
 
 <!DOCTYPE html>
@@ -36,12 +61,12 @@ $userInfo = getUserInfo($_SESSION['user_id']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Netflix</title>
+    <title>Kết quả tìm kiếm</title>
     <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
     <div class="wrapper">
-    <nav>
+        <nav>
             <ul class="nav-links">
                 <li><a href="../menu/menu.php">Trang chủ</a></li>
                 <li><a href="../gioithieu/gioithieu.php?type=gioithieu">Giới thiệu film</a></li>
@@ -78,7 +103,7 @@ $userInfo = getUserInfo($_SESSION['user_id']);
                     </ul>
                 </li>
                 <li class="search-bar">
-                    <form method="GET" action="">
+                    <form method="GET" action="/search.php">
                         <input type="text" name="query" placeholder="Tìm kiếm..." value="<?php echo isset($_GET['query']) ? htmlspecialchars($_GET['query']) : ''; ?>"/>
                         <button type="submit">Tìm Kiếm</button>
                     </form>
@@ -93,92 +118,27 @@ $userInfo = getUserInfo($_SESSION['user_id']);
             </ul>
         </nav>
         <main>
-        <main>
-            <?php
-                // Kiểm tra nếu có tham số type từ URL
-                if (isset($_GET['type'])) {
-                    $type = $_GET['type'];
-                    if (htmlspecialchars($type) == 'gioithieu') {
-                        echo '<h2>Phim hay</h2>';
-                        // Hiển thị tất cả phim nếu type là 'gioithieu'
-                        $sql = "SELECT * FROM movies";
-                    } else {
-                        echo '<h2>' . htmlspecialchars($type) . '</h2>';
-                        // Hiển thị phim theo thể loại được chọn
-                        $sql = "SELECT * FROM movies 
-                                INNER JOIN moviegenres ON movies.id = moviegenres.movie_id 
-                                INNER JOIN genres ON genres.id = moviegenres.genre_id 
-                                WHERE genres.name = :type";
-                    }
-                    
-                    // Thực hiện truy vấn và hiển thị danh sách phim
-                    try {
-                        $pdo = new PDO("mysql:host=$host;dbname=$dbname;port=$port", $username_db, $password_db);
-                        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                        $stmt = $pdo->prepare($sql);
-                        if (isset($type) && htmlspecialchars($type) != 'gioithieu') {
-                            $stmt->bindParam(':type', $type);
-                        }
-                        $stmt->execute();
-                        $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                        // Hiển thị các phim
-                        if ($movies) {
-                            echo '<div class="product-grid">';
-                            foreach ($movies as $movie) {
-                                echo '
-                                <div class="product">
-                                    <img src="' . htmlspecialchars($movie['image']) . '" alt="' . htmlspecialchars($movie['title']) . '">
-                                    <h3>' . htmlspecialchars($movie['title']) . '</h3>
-                                    <p>Thời lượng: ' . htmlspecialchars($movie['duration']) . '</p>
-                                    <p>Đánh giá: ' . htmlspecialchars($movie['rating']) . '</p>
-                                    <a href="../xemchitiet/xemchitiet.php?id=' . htmlspecialchars($movie['id']) . '">Xem chi tiết</a>
-                                </div>
-                                ';
-                            }
-                            echo '</div>'; // Đóng div.product-grid
-                        } else {
-                            echo "<p>Không có phim nào được tìm thấy.</p>";
-                        }
-                    } catch (PDOException $e) {
-                        echo "Lỗi khi kết nối đến cơ sở dữ liệu: " . $e->getMessage();
-                    }
-
-                    $pdo = null;
-                } else {
-                    echo "<p>Tham số 'type' không tồn tại trong URL.</p>";
-                }
-            ?>
+            <section class="search-results">
+                <h2>Kết quả tìm kiếm cho "<?php echo htmlspecialchars($searchQuery); ?>"</h2>
+                <div class="movies-grid">
+                    <?php if (!empty($searchResults)): ?>
+                        <?php foreach ($searchResults as $movie): ?>
+                            <div class="movie">
+                                <img src="<?php echo htmlspecialchars($movie['image']); ?>" alt="<?php echo htmlspecialchars($movie['title']); ?>" width="200px" height="300px">
+                                <h3><?php echo htmlspecialchars($movie['title']); ?></h3>
+                                <p><?php echo htmlspecialchars($movie['description']); ?></p>
+                                <a href="movie.php?id=<?php echo htmlspecialchars($movie['id']); ?>">Xem chi tiết</a>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p>Không có kết quả tìm kiếm nào phù hợp.</p>
+                    <?php endif; ?>
+                </div>
+            </section>
         </main>
-        
     </div>
     <footer>
         <p>&copy; 2024 Netflix. All rights reserved.</p>
     </footer>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
