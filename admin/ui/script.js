@@ -9,12 +9,15 @@ const divDeleteForm = document.getElementById("div_deleteform")
 var catchDimissAll = true
 
 
-function Update(id) {
+function Update(id, name, birthdate) {
   addForm.style.display = "none"
   updateForm.style.display = "flex"
   updateForm.style.alignItems = 'center'
   updateForm.style.justifyContent = 'center'
   deleteForm.style.display = "none"
+  document.getElementById("nameUpdate").value = name
+  document.getElementById("birthdateUpdate").value = birthdate
+  document.getElementById("id_update").value = id
   catchDimissAll = false
 }
 
@@ -24,12 +27,11 @@ function Delete(id) {
   deleteForm.style.display = "flex"
   deleteForm.style.alignItems = 'center'
   deleteForm.style.justifyContent = 'center'
+  document.getElementById("id_delete").value = id
   catchDimissAll = false
 }
 
 function Add() {
-  console.log(addForm)
-  console.log(updateForm)
   addForm.style.display = 'flex'
   addForm.style.alignItems = 'center'
   addForm.style.justifyContent = 'center'

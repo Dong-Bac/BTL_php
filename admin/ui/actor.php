@@ -18,7 +18,27 @@
     include_once "../../dao/ActorDao.php";
 
     $dao = new ActorDao($conn);
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $action = $_POST["action"];
+        if ($action == 'add') {
+            $name = $_POST["name"];
+            $birthdate = $_POST["birthdate"];
+            $dao->addActor($name, $birthdate);
+        }
+        if ($action == 'update') {
+            $id = $_POST["id"];
+            $name = $_POST["name"];
+            $birthdate = $_POST["birthdate"];
+            $dao->updateActor($id, $name, $birthdate);
+        }
+        if ($action == 'delete') {
+            $id = $_POST["id"];
+            $dao->deleteActor($id);
+        }
+    }
     $data = $dao->getActors();
+
     ?>
     <div id="container">
         <div class="col-lg-12 mt-3">
@@ -41,14 +61,14 @@
                         foreach ($data as $item) {
                             echo
                             '<tbody>
-                        <tr>
-                        <td>' . $item['id'] . '</td>
-                        <td>' . $item['name'] . '</td>
-                        <td>' . $item['birthdate'] . '</td>
-                        <td><button class="btn btn-primary" onclick="Update(' . $item['id'] . ')">Update</button></td>
-                        <td><button class="btn btn-primary" onclick="Delete(' . $item['id'] . ')">Delete</button></td>
-                        </tr>
-                        </tbody>';
+                            <tr>
+                            <td>' . $item['id'] . '</td>
+                            <td>' . $item['name'] . '</td>
+                            <td>' . $item['birthdate'] . '</td>
+                            <td><button class="btn btn-primary" onclick="Update(' . "'" . $item['id'] . "'" . ',' . "'" . $item['name'] . "'" . ',' . "'" . $item['birthdate'] . "'" . ')">Update</button></td>
+                            <td><button class="btn btn-primary" onclick="Delete(' . $item['id'] . ')">Delete</button></td>
+                            </tr>
+                            </tbody>';
                         }
                         ?>
                         <thead class="thead-light">
@@ -71,35 +91,36 @@
                     <h6 class="m-0 font-weight-bold text-primary">Add Form</h6>
                 </div>
                 <div class="card-body">
-                    <form>
+                    <form method="post">
                         <div class="form-group">
                             <label for="Name">Name</label>
-                            <input type="text" class="form-control" id="text" placeholder="Enter name">
+                            <input type="text" class="form-control" name="name" placeholder="Enter name">
                         </div>
                         <div class="form-group">
                             <label for="Birthdate">Birthdate</label>
-                            <input type="date" class="form-control" id="text" placeholder="Enter name">
+                            <input type="date" class="form-control" name="birthdate">
                         </div>
-                        <button type="submit" name="action" class="btn btn-primary" value="add">Add</button>
+                        <button type="submit" name="action" class="btn btn-primary" value="add" value="2024-06-25">Add</button>
                     </form>
                 </div>
             </div>
         </div>
-        
+
         <div id="wrap_updateform" class="wrap-form form-overlay">
             <div id="div_updateform" class="card" style="width: 600px;">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Update Form</h6>
                 </div>
                 <div class="card-body">
-                    <form>
+                    <form method="post">
+                        <input id="id_update" name="id" hidden>
                         <div class="form-group">
                             <label for="Name">Name</label>
-                            <input type="text" class="form-control" id="text" placeholder="Enter name">
+                            <input id="nameUpdate" type="text" class="form-control" name="name" placeholder="Enter name">
                         </div>
                         <div class="form-group">
                             <label for="Birthdate">Birthdate</label>
-                            <input type="date" class="form-control" id="text" placeholder="Enter name">
+                            <input id="birthdateUpdate" type="date" class="form-control" name="birthdate" placeholder="Enter name" value="2024-06-25">
                         </div>
                         <button type="submit" name="action" class="btn btn-primary" value="update">Update</button>
                     </form>
@@ -113,7 +134,8 @@
                     <h6 class="m-0 font-weight-bold text-primary">Delete Form</h6>
                 </div>
                 <div class="card-body">
-                    <form>
+                    <form method="post">
+                        <input id="id_delete" name="id" hidden>
                         Are you want delete this item?
                         <br>
                         <br>
