@@ -1,0 +1,17 @@
+#main_content {
+    margin-top: 16px;
+}
+.form-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Adjust height if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.3s ease-in-out;
+    z-index: 10; /* Ensure overlay appears above other elements */
+  }
+.wrap-form{
+    display: none;
+}
