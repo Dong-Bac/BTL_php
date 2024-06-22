@@ -6,12 +6,14 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%; /* Adjust height if needed */
-    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-    opacity: 0; /* Initially hidden */
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5); 
     transition: opacity 0.3s ease-in-out;
-    z-index: 10; /* Ensure overlay appears above other elements */
-  }
+    z-index: 10;
+}
 .wrap-form{
     display: none;
 }
