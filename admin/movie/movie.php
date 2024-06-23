@@ -19,20 +19,39 @@ session_start();
     <?php
     include_once "../../config/connect.php";
     include_once "../../dao/MovieDao.php";
+    include_once "../../dao/MovieActorDao.php";
+    include_once "../../dao/MovieGenreDao.php";
+    include_once "../../dao/DirectorDao.php";
+    include_once "../../dao/ActorDao.php";
+    include_once "../../dao/GenreDao.php";
 
     $dao = new MovieDao($conn);
+    $movieActorDao = new MovieActorsDao($conn);
+    $movieGenreDao = new MovieGenresDao($conn);
+    $directorDao = new DirectorsDao($conn);
+    $actorDao = new ActorDao($conn);
+    $genreDao = new GenresDao($conn);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST["action"];
         if ($action == 'add') {
+            print_r($_POST);
             $image = $_POST["image"];
             $tittle = $_POST["title"];
             $release_date = $_POST["release_date"];
             $description = $_POST["description"];
-            $director_id = $_POST["director_id"];
+            $director_id = $_POST["director"];
             $link = $_POST["link"];
             $duration = $_POST["duration"];
-            $dao->addMovie($name, $birthdate);
+            $actors = $_POST['actors'];
+            $genres = $_POST['genres'];
+            $last_id = $dao->addMovie($image, $tittle, $release_date, $description, $director_id, $link, $duration);
+            foreach ($actors as $a) {
+                $movieActorDao->addMovieActor($last_id, $a);
+            }
+            foreach ($genres as $g) {
+                $movieGenreDao->addMovieGenre($last_id, $g);
+            }
         }
         if ($action == 'update') {
             $id = $_POST["id"];
@@ -46,6 +65,9 @@ session_start();
         }
     }
     $data = $dao->getMovies();
+    $listDirector = $directorDao->getDirectors();
+    $listActor = $actorDao->getActors();
+    $listGenre = $genreDao->getGenres();
     ?>
     <div id="container">
         <div class="col-lg-12 mt-3">
@@ -70,6 +92,28 @@ session_start();
                         </thead>
                         <?php
                         foreach ($data as $item) {
+                            $list_genre = $movieGenreDao->getMovieGenres($item['id']);
+                            $genrestr = "";
+                            $genreIds = "";
+                            foreach ($list_genre as $i) {
+                                $genrestr .= " " . $i['genre_name'] . ", ";
+                                $genreIds .= $i['genre_id'] . ",";
+                            }
+                            $genrestr = rtrim($genrestr, " ");
+                            $genrestr = rtrim($genrestr, ",");
+                            $genreIds = rtrim($genreIds, ",");
+
+                            $list_actor = $movieActorDao->getMovieActors($item['id']);
+                            $actorstr = "";
+                            $actorIds = "";
+                            foreach ($list_actor as $i) {
+                                $actorstr .= " " . $i['actor_name'] . ", ";
+                                $actorIds .= $i['actor_id'] . ",";
+                            }
+                            $actorstr = rtrim($actorstr, " ");
+                            $actorstr = rtrim($actorstr, ",");
+                            $actorIds = rtrim($actorIds, ",");
+                            
                             echo
                             '<tbody>
                             <tr>
@@ -77,21 +121,35 @@ session_start();
                             <td> <image src ="' . $item['image'] . '" width="120" height="90"></td>
                             <td>' . $item['title'] . '</td>
                             <td>' . $item['release_date'] . '</td>
-                            <td>' 
-                            . $item['description'] . '<br>'.
-                            'Director: '. $item['director_name'] . '<br>'.
-                            'Actor: '. $item['actor_name'] . '<br>'.
-                            'Genre: '. $item['genre_name'] . '<br>'.
-                            '</td>
-                            <td>'. $item['link'] . '</td>
+                            <td>'
+                                . $item['description'] . '<br>' .
+                                'Director: ' . $item['director_name'] . '<br>' .
+                                'Actor: ' . $actorstr . '<br>' .
+                                'Genre: ' . $genrestr . '<br>' .
+                                '</td>
+                            <td>' . $item['link'] . '</td>
                             <td>' . $item['duration'] . '</td>
                             <td><button class="btn btn-primary" onclick="Update('
-                            . "'" . $item['id'] . "'" . 
-                            ','
-                            ."'" . $item['image'] . "'" . 
-                            ','
-                            . "'" . $item['title'] . "'" .
-                             ')">Update</button></td>
+                                . "'" . $item['id'] . "'" .
+                                ','
+                                . "'" . $item['image'] . "'" .
+                                ','
+                                . "'" . $item['title'] . "'" .
+                                ','
+                                . "'" . $item['release_date'] . "'" .
+                                ','
+                                . "'" . $item['description'] . "'" .
+                                ','
+                                . "'" . $item['director_id'] . "'" .
+                                ','
+                                . "'" . $item['link'] . "'" .
+                                ','
+                                . "'" . $item['duration'] . "'" .
+                                ','
+                                . "'" . $actorIds . "'" .
+                                ','
+                                . "'" . $genreIds . "'" .
+                                ')">Update</button></td>
                             <td><button class="btn btn-primary" onclick="Delete(' . $item['id'] . ')">Delete</button></td>
                             </tr>
                             </tbody>';
@@ -123,14 +181,56 @@ session_start();
                 <div class="card-body">
                     <form method="post">
                         <div class="form-group">
-                            <label for="Name">Name</label>
-                            <input type="text" class="form-control" name="name" placeholder="Enter name">
+                            <label for="Name">Title</label>
+                            <input type="text" class="form-control" name="title" placeholder="Enter Title">
                         </div>
                         <div class="form-group">
-                            <label for="Birthdate">Birthdate</label>
-                            <input type="date" class="form-control" name="birthdate">
+                            <label for="Image">Image</label>
+                            <input type="url" class="form-control" name="image" placeholder="https://???">
                         </div>
-                        <button type="submit" name="action" class="btn btn-primary" value="add" value="2024-06-25">Add</button>
+                        <div class="form-group">
+                            <label for="releaseDate">Release Date</label>
+                            <input type="date" class="form-control" name="release_date">
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input type="text" class="form-control" name="description">
+                        </div>
+                        <div class="form-group">
+                            <label for="director">Director: </label>
+                            <select name="director">
+                                <?php
+                                foreach ($listDirector as $d) {
+                                    echo '<option value="' . $d["id"] . '">' . $d["name"] . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="actor">Actors: </label>
+                            <?php
+                            foreach ($listActor as $a) {
+                                echo '<input id="actor' . $a['id'] . '" type="checkbox" name="actors[]" value="' . $a['id'] . '"> ' . $a['name'] . "   ";
+                            }
+                            ?>
+                        </div>
+                        <div class="form-group">
+                            <label for="actor">Genres: </label>
+                            <?php
+                            foreach ($listGenre as $g) {
+                                echo '<input id="genre' . $g['id'] . '" type="checkbox" name="genres[]" value="' . $g['id'] . '"> ' . $g['name'] . "   ";
+                            }
+                            ?>
+                        </div>
+                        <div class="form-group">
+                            <label for="link">Link</label>
+                            <input type="url" class="form-control" name="link">
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">Duration</label>
+                            <input type="number" class="form-control" name="duration">
+                        </div>
+                        <button type="submit" name="action" class="btn btn-primary" value="add">Add</button>
                     </form>
                 </div>
             </div>
@@ -145,12 +245,54 @@ session_start();
                     <form method="post">
                         <input id="id_update" name="id" hidden>
                         <div class="form-group">
-                            <label for="Name">Name</label>
-                            <input id="nameUpdate" type="text" class="form-control" name="name" placeholder="Enter name">
+                            <label for="Name">Title</label>
+                            <input id="title_update" type="text" class="form-control" name="title" placeholder="Enter Title">
                         </div>
                         <div class="form-group">
-                            <label for="Birthdate">Birthdate</label>
-                            <input id="birthdateUpdate" type="date" class="form-control" name="birthdate" placeholder="Enter name" value="2024-06-25">
+                            <label for="Image">Image</label>
+                            <input id="image_update" type="url" class="form-control" name="image" placeholder="https://???">
+                        </div>
+                        <div class="form-group">
+                            <label for="releaseDate">Release Date</label>
+                            <input id="releaseDate_update" type="date" class="form-control" name="release_date">
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <input id="description_update" type="text" class="form-control" name="description">
+                        </div>
+                        <div class="form-group">
+                            <label for="director">Director: </label>
+                            <select name="director">
+                                <?php
+                                foreach ($listDirector as $d) {
+                                    echo '<option id="director'.$d["id"].'" value="' . $d["id"] . '">' . $d["name"] . '</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="actor">Actors: </label>
+                            <?php
+                            foreach ($listActor as $a) {
+                                echo '<input id="actor' . $a['id'] . '" type="checkbox" name="actors[]" value="' . $a['id'] . '" > ' . $a['name'] . "   ";
+                            }
+                            ?>
+                        </div>
+                        <div class="form-group">
+                            <label for="actor">Genres: </label>
+                            <?php
+                            foreach ($listGenre as $g) {
+                                echo '<input id="genre' . $g['id'] . '" type="checkbox" name="genres[]" value="' . $g['id'] . '"> ' . $g['name'] . "   ";
+                            }
+                            ?>
+                        </div>
+                        <div class="form-group">
+                            <label for="link">Link</label>
+                            <input id="link_update" type="url" class="form-control" name="link">
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">Duration</label>
+                            <input id="duration_update" type="number" class="form-control" name="duration">
                         </div>
                         <button type="submit" name="action" class="btn btn-primary" value="update">Update</button>
                     </form>

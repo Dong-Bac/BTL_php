@@ -9,15 +9,31 @@ const divDeleteForm = document.getElementById("div_deleteform")
 var catchDimissAll = true
 
 
-function Update(id, name, birthdate) {
+function Update(id, image, tittle, release_date, description, director_id, link, duration, actorIds, genreIds) {
   addForm.style.display = "none"
   updateForm.style.display = "flex"
   updateForm.style.alignItems = 'center'
   updateForm.style.justifyContent = 'center'
   deleteForm.style.display = "none"
-  document.getElementById("nameUpdate").value = name
-  document.getElementById("birthdateUpdate").value = birthdate
   document.getElementById("id_update").value = id
+  document.getElementById("title_update").value = tittle
+  document.getElementById("image_update").value = image
+  document.getElementById("releaseDate_update").value = release_date
+  document.getElementById("description_update").value = description
+  document.getElementById("director"+director_id).selected = true
+  document.getElementById("link_update").value = link
+  document.getElementById("duration_update").value = duration
+
+  var actors = actorIds.split(",")
+  actors.forEach(function(id) {
+    document.getElementById("actor"+id).checked = true
+    document.getElementById("actor"+id).selected = true
+    console.log(document.getElementById("actor"+id))
+  });
+  var genres = genreIds.split(",")
+  genres.forEach(function(id) {
+    document.getElementById("genre"+id).checked = true
+  });
   catchDimissAll = false
 }
 
