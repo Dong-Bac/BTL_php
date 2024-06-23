@@ -1,0 +1,19 @@
+#main_content {
+    margin-top: 16px;
+}
+.form-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5); 
+    transition: opacity 0.3s ease-in-out;
+    z-index: 10;
+}
+.wrap-form{
+    display: none;
+}
