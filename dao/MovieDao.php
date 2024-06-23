@@ -1,36 +1,78 @@
 <?php
 
-class MovieGenresDao {
+class MovieDao
+{
     private $pdo;
 
-    public function __construct(PDO $pdo) {
+    public function __construct(PDO $pdo)
+    {
         $this->pdo = $pdo;
     }
 
-    public function getMovieGenres(int $movieId = null): array {
-        $sql = "SELECT mg.*, g.name AS genre_name FROM moviegenres mg LEFT JOIN genres g ON mg.genre_id = g.id";
-        $params = [];
-
-        if ($movieId !== null) {
-            $sql .= " WHERE movie_id = ?";
-            $params[] = $movieId;
-        }
-
+    public function getMovies(): array
+    {
+        $sql = "SELECT m.*, d.name AS director_name, w.name AS genre_name, y.name AS actor_name
+                FROM movies m 
+                INNER JOIN directors d ON m.director_id = d.id
+                INNER JOIN movieactors x ON m.id = x.movie_id
+                INNER JOIN actors y ON x.actor_id = y.id
+                INNER JOIN moviegenres z ON m.id = z.movie_id
+                INNER JOIN genres w ON z.genre_id = w.id";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        $stmt->execute();
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $result;
     }
 
-    public function addMovieGenre(int $movieId, int $genreId): void {
-        $sql = "INSERT INTO moviegenres (movie_id, genre_id) VALUES (?, ?)";
+    public function getMovieById(int $id): ?array
+    {
+        $sql = "SELECT m.*, d.name AS director_name 
+                FROM movies m 
+                LEFT JOIN directors d ON m.director_id = d.id
+                WHERE m.id = ?";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$movieId, $genreId]);
+        $stmt->execute([$id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result;
     }
 
-    public function deleteMovieGenre(int $movieId, int $genreId): void {
-        $sql = "DELETE FROM moviegenres WHERE movie_id = ? AND genre_id = ?";
+    public function addMovie(
+        string $image,
+        string $title,
+        ?DateTime $releaseDate = null,
+        string $description = "",
+        ?int $directorId = null,
+        string $link = "",
+        int $duration = 0,
+        float $rating = 0.0
+    ): void {
+        $sql = "INSERT INTO movies (image, title, release_date, description, director_id, link, duration, rating, visited) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$movieId, $genreId]);
+        $stmt->execute([$image, $title, $releaseDate?->format('Y-m-d'), $description, $directorId, $link, $duration, $rating]);
+    }
+
+    public function updateMovie(
+        int $id,
+        string $image,
+        string $title,
+        ?DateTime $releaseDate = null,
+        string $description = "",
+        ?int $directorId = null,
+        string $link = "",
+        int $duration = 0,
+        float $rating = 0.0
+    ): void {
+        $sql = "UPDATE movies SET image = ?, title = ?, release_date = ?, description = ?, director_id = ?, link = ?, duration = ?, rating = ? 
+                WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$image, $title, $releaseDate?->format('Y-m-d'), $description, $directorId, $link, $duration, $rating, $id]);
+    }
+
+    public function deleteMovie(int $id): void
+    {
+        $sql = "DELETE FROM movies WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id]);
     }
 }
